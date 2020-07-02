@@ -2,19 +2,9 @@
 from sys import stdin
 
 def fibonacci_sum_squares_naive(n):
-    if n <= 1:
-        return n
-
-    previous = 0
-    current  = 1
-    sum      = 1
-
-    for _ in range(n - 1):
-        previous, current = current, previous + current
-        sum += current * current
-
-    return sum % 10
+    square_sum_series=[0, 1, 2, 6, 5, 0, 4, 3, 4, 0, 5, 6, 2, 1, 0, 0, 9, 8, 4, 5, 0, 6, 7, 6, 0, 5, 4, 8, 9, 0, 0, 1, 2, 6, 5, 0, 4, 3, 4, 0, 5, 6, 2, 1, 0, 0, 9, 8, 4, 5, 0, 6, 7, 6, 0, 5, 4, 8, 9, 0]
+    return square_sum_series[n% 60]
 
 if __name__ == '__main__':
-    n = int(stdin.read())
+    n = int(input())
     print(fibonacci_sum_squares_naive(n))

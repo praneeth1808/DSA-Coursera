@@ -1,11 +1,22 @@
 #Uses python3
 
 import sys
+def IsGreaterOrEqual(digit, max_digit):
+    return int((digit)+(max_digit))>=int((max_digit)+(digit))
+
 
 def largest_number(a):
-    #write your code here
+    result = []
+    while a:
+        max_digit = '0'
+        for digit in a:
+            if IsGreaterOrEqual(digit, max_digit):
+                max_digit = digit
+        result.append(max_digit)
+        a.remove(max_digit)
+
     res = ""
-    for x in a:
+    for x in result:
         res += x
     return res
 

@@ -8,7 +8,6 @@ def optimal_summands(n):
     sum = int(max_range*(max_range+1)*0.5)
     summands=[*range(1,max_range),max_range+n-sum]
     return summands
-
 if __name__ == '__main__':
     input = sys.stdin.read()
     n = int(input)

@@ -7,7 +7,14 @@ def get_majority_element(a, left, right):
     if left + 1 == right:
         return a[left]
     #write your code here
-    return -1
+    a.sort()
+    lengthNeeded=(right+1)//2
+    LoopArrayLength=right//2
+    found=-1
+    for i in range(lengthNeeded):
+        if(a[i]==a[i+LoopArrayLength]):
+            return a[i]
+    return found
 
 if __name__ == '__main__':
     input = sys.stdin.read()

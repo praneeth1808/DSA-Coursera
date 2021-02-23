@@ -1,5 +1,22 @@
 # python3
 
+def swap_down(data,n,i,swaps):
+    smallest = i
+    l = 2*i+1
+    r = 2 * i + 2
+    if l < n and data[l] < data[smallest]:
+        smallest = l;
+    if r < n and data[r] < data[smallest]:
+        smallest = r;
+    if smallest!=i:
+        data[i], data[smallest] = data[smallest], data[i];
+        swaps.append((smallest,i))
+        swap_down(data, n, smallest,swaps);
+
+def build_heap_fast(data,n,swaps):
+    start_index=n//2 -1
+    for i in range(start_index, -1, -1):
+        swap_down(data, n, i,swaps);
 
 def build_heap(data):
     """Build a heap from ``data`` inplace.
@@ -26,8 +43,8 @@ def main():
     data = list(map(int, input().split()))
     assert len(data) == n
 
-    swaps = build_heap(data)
-
+    swaps = []
+    build_heap_fast(data,n,swaps)
     print(len(swaps))
     for i, j in swaps:
         print(i, j)

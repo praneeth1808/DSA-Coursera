@@ -25,9 +25,6 @@ class TreeOrders:
     self.result.append(self.key[i])
     if(self.right[i]!=-1):
         self.inOrder(self.right[i])
-    # Finish the implementation
-    # You may need to add a new recursive method to do that
-                
     return self.result
 
   def preOrder(self,i=0):

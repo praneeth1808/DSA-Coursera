@@ -14,6 +14,7 @@ class MaxMatching:
         # matching correctly in all cases.
         n = len(adj_matrix)
         m = len(adj_matrix[0])
+        print(adj_matrix)
         matching = [-1] * n
         busy_right = [False] * m
         for i in range(n):

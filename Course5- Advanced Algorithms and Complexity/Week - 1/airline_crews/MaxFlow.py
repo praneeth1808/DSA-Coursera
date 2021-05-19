@@ -8,6 +8,8 @@ class Edge:
         self.capacity = capacity
         self.flow = 0
 
+# This class implements a bit unusual scheme for storing edges of the graph,
+# in order to retrieve the backward edge for a given edge quickly.
 class FlowGraph:
 
     def __init__(self, n):
@@ -38,6 +40,10 @@ class FlowGraph:
     def get_edge(self, id):
         return self.edges[id]
 
+    def print_edge(self,id):
+        edge = self.edges[id]
+        print("("+str(edge.u)+","+str(edge.v)+","+str(edge.capacity)+","+str(edge.flow)+")")
+
     def add_flow(self, id, flow):
         # To get a backward edge for a true forward edge (i.e id is even), we should get id + 1
         # due to the described above scheme. On the other hand, when we have to get a "backward"
@@ -47,6 +53,32 @@ class FlowGraph:
         # It turns out that id ^ 1 works for both cases. Think this through!
         self.edges[id].flow += flow
         self.edges[id ^ 1].flow -= flow
+
+
+def read_data():
+    vertex_count, edge_count = map(int, input().split())
+    graph = FlowGraph(vertex_count)
+    for _ in range(edge_count):
+        u, v, capacity = map(int, input().split())
+        graph.add_edge(u - 1, v - 1, capacity)
+    return graph
+
+def read_data_from_file(data):
+    vertex_count = data[0][0]
+    edge_count = data[0][1]
+    graph = FlowGraph(vertex_count)
+    for i in range(edge_count):
+        u = data[1][i][0]
+        v = data[1][i][1]
+        capacity = data[1][i][2]
+        graph.add_edge(u - 1, v - 1, capacity)
+    return graph
+
+def construct_path(dist_array,min_dist):
+    path = []
+    for i in range(min_dist,-1,-1):
+        path.append(dist_array.index(i))
+    return path
 
 def find_path(graph,parents,M):
     max_distance = graph.size() + 2
@@ -67,87 +99,44 @@ def find_path(graph,parents,M):
                     return M[graph.size()-1],parents
     return 0,parents
 
+def get_min_capacity(graph,path):
+    min = float('inf')
+    id = -1
+    edges = []
+    for i in range(0,len(path)-1):
+        ids = graph.get_ids(path[i])
+        for e_id in ids:
+            edge = graph.get_edge(e_id)
+            if edge.v == path[i+1] and edge.capacity>0 and edge.capacity-edge.flow > 0 :
+                edges.append(e_id)
+                if min > edge.capacity :
+                    min = edge.capacity
+                    id = e_id
+    graph.add_flow(id,min)
+    return (min,edges)
 
-def max_flow(graph,n):
-    # your code goes here
+def max_flow(graph, from_, to):
+     # your code goes here
     flow = 0
-    final_matching = [-1] * n
+
     while True:
         parents = [-1 for i in range(graph.size())]
         parents[0] = -2
         M = [0 for i in range(graph.size())]
         M[0] = float('inf')
-        new_flow, parents = find_path(graph, parents, M)
+        new_flow,parents = find_path(graph,parents,M)
         if new_flow == 0:
-            return final_matching
-        flow += new_flow
-        v = graph.size() - 1
-        pathMatchings=[]
-        while v != 0:
-            pathMatchings.append(v)
+            return flow
+        flow+=new_flow
+        v=graph.size()-1
+        while v != 0 :
             v_id = parents[v]
-            graph.add_flow(v_id, new_flow)
-            u_edge = graph.get_edge(v_id)
+            graph.add_flow(v_id,new_flow)
+            u_edge=graph.get_edge(v_id)
             v = u_edge.u
-        for i in range(1,len(pathMatchings),2):
-            match = pathMatchings[i:i+2]
-            final_matching[match[1]-1]=match[0]-n-1
-    return final_matching
+    return flow
 
-
-class MaxMatching:
-    def read_data(self):
-        n, m = map(int, input().split())
-        adj_matrix = [list(map(int, input().split())) for i in range(n)]
-        return adj_matrix
-
-    def write_response(self, matching):
-        line = [str(-1 if x == -1 else x + 1) for x in matching]
-        print(' '.join(line))
-
-    def buildGraph(self,adj_matrix,n,m):
-
-        vertices = []
-        graphSize=n+m+2
-        for i in range(1,n+1):
-            vertices.append([0,i,1])
-        for i in range(n):
-            for j in range(m):
-                if(adj_matrix[i][j]):
-                    vertices.append([i+1, n+j+1,1])
-        for j in range(1,m+1):
-            vertices.append([n+j, graphSize-1,1])
-        graph = FlowGraph(graphSize)
-        for i in range(len(vertices)):
-            u = vertices[i][0]
-            v = vertices[i][1]
-            capacity = vertices[i][2]
-            graph.add_edge(u, v, capacity)
-        return graph
-
-    def find_matching(self, adj_matrix):
-        # Replace this code with an algorithm that finds the maximum
-        # matching correctly in all cases.
-        n = len(adj_matrix)
-        m = len(adj_matrix[0])
-        self.buildGraph(adj_matrix)
-        matching = [-1] * n
-        busy_right = [False] * m
-        for i in range(n):
-            for j in range(m):
-                if adj_matrix[i][j] and matching[i] == -1 and (not busy_right[j]):
-                    matching[i] = j
-                    busy_right[j] = True
-        return matching
-
-    def solve(self):
-        adj_matrix = self.read_data()
-        n = len(adj_matrix)
-        m = len(adj_matrix[0])
-        # matching = self.find_matching(adj_matrix)
-        graph = self.buildGraph(adj_matrix, n, m)
-        self.write_response(max_flow(graph,n))
 
 if __name__ == '__main__':
-    max_matching = MaxMatching()
-    max_matching.solve()
+    graph = read_data()
+    print(max_flow(graph, 0, graph.size() - 1))

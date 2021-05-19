@@ -1,5 +1,4 @@
 # python3
-import time
 
 class Edge:
 
@@ -18,6 +17,8 @@ class FlowGraph:
         self.edges = []
         # These adjacency lists store only indices of edges in the edges list
         self.graph = [[] for _ in range(n)]
+        self.parents = [-1 for i in range(n)]
+        self.parents[0] = -2
 
     def add_edge(self, from_, to, capacity):
         # Note that we first append a forward edge and then a backward edge,
@@ -79,33 +80,24 @@ def construct_path(dist_array,min_dist):
         path.append(dist_array.index(i))
     return path
 
-def find_path(graph):
+def find_path(graph,parents,M):
     max_distance = graph.size() + 2
     dist = [max_distance for _ in range(graph.size())]
     queue = [0]
     dist[0] = 0
     vertices = []
     while(len(queue)>0):
-        # print("Queue(before pop) ->", end=" ")
-        # print(queue)
         u = queue.pop(0)
-
         for v_id in graph.graph[u]:
             v = graph.get_edge(v_id)
-            # graph.print_edge(v_id)
-            if (dist[v.v]==max_distance and v.capacity>0 and v.capacity-v.flow > 0):
-                if not(len(vertices)>0 and vertices[-1]==u):
-                    vertices.append((u))
-                queue.append(v.v)
-                # print("Queue ->", end=" ")
-                # print(queue)
-                # print("Dist ->", end=" ")
-                # print(dist)
-                dist[v.v]=dist[u]+1
-                if(v.v==graph.size()-1):
-                    vertices.append(v.v)
-                    return(vertices)
-    return []
+            if (parents[v.v] == -1 and v.capacity-v.flow > 0):
+                parents[v.v] = v_id
+                M[v.v] = min(M[u],v.capacity-v.flow)
+                if v.v!=graph.size()-1:
+                    queue.append(v.v)
+                else:
+                    return M[graph.size()-1],parents
+    return 0,parents
 
 def get_min_capacity(graph,path):
     min = float('inf')
@@ -125,15 +117,24 @@ def get_min_capacity(graph,path):
 
 def max_flow(graph, from_, to):
      # your code goes here
-    capacity = 0
-    while True:
-        path = find_path(graph)
-        if len(path) == 0:
-            return capacity
-        (min_c,edges) = get_min_capacity(graph,path)
-        capacity+=min_c
-    return capacity
+    flow = 0
 
+    while True:
+        parents = [-1 for i in range(graph.size())]
+        parents[0] = -2
+        M = [0 for i in range(graph.size())]
+        M[0] = float('inf')
+        new_flow,parents = find_path(graph,parents,M)
+        if new_flow == 0:
+            return flow
+        flow+=new_flow
+        v=graph.size()-1
+        while v != 0 :
+            v_id = parents[v]
+            graph.add_flow(v_id,new_flow)
+            u_edge=graph.get_edge(v_id)
+            v = u_edge.u
+    return flow
 
 
 if __name__ == '__main__':
